@@ -39,6 +39,22 @@ PATTERN
 resource "aws_cloudwatch_event_target" "sns_target" {
   rule      = aws_cloudwatch_event_rule.example_rule.name
   arn       = aws_sns_topic.sns_topic.arn
+  input_transformer {
+    input_paths = {
+      instance = "$.detail.instance-id",
+      parm     = "$.region",
+      status   = "$.detail.state",
+      # state   = "$.detail.state",
+    }
+  # "instance_state": <state>,
+    input_template = <<-EOT
+               "Dear all,"
+               "region <parm> ," 
+               "<instance> is in state <status>"
+
+               "Best regards"
+EOT
+  }
 }
 
 resource "aws_sns_topic_policy" "default" {
